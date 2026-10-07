@@ -7,7 +7,7 @@ export const createDefaultGridAsset = (overrides: Partial<GridAsset> = {}): Grid
   feeder_line: "feeder line 1" as never,
   voltage_level: "LOW" as never,
   location_desc: "location desc 1" as never,
-  health_status: "ASSIGNED" as never,
+  health_status: "NORMAL" as never,
   owner_team_id: 1 as never,
   ...overrides
 });

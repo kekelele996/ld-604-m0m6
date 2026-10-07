@@ -7,7 +7,7 @@ export const mockData = {
       "feeder_line": "feeder line 1",
       "voltage_level": "LOW",
       "location_desc": "location desc 1",
-      "health_status": "ASSIGNED",
+      "health_status": "NORMAL",
       "owner_team_id": 1
     },
     {
@@ -17,7 +17,7 @@ export const mockData = {
       "feeder_line": "feeder line 2",
       "voltage_level": "MEDIUM",
       "location_desc": "location desc 2",
-      "health_status": "ARRIVED",
+      "health_status": "NORMAL",
       "owner_team_id": 2
     },
     {
@@ -27,8 +27,28 @@ export const mockData = {
       "feeder_line": "feeder line 3",
       "voltage_level": "HIGH",
       "location_desc": "location desc 3",
-      "health_status": "WAIT_DISPATCH",
+      "health_status": "NORMAL",
       "owner_team_id": 3
+    },
+    {
+      "id": 4,
+      "asset_code": "asset code 4",
+      "asset_type": "OUTAGE",
+      "feeder_line": "feeder line 1",
+      "voltage_level": "LOW",
+      "location_desc": "location desc 4",
+      "health_status": "WATCH",
+      "owner_team_id": 1
+    },
+    {
+      "id": 5,
+      "asset_code": "asset code 5",
+      "asset_type": "SAFETY_RISK",
+      "feeder_line": "feeder line 2",
+      "voltage_level": "MEDIUM",
+      "location_desc": "location desc 5",
+      "health_status": "NORMAL",
+      "owner_team_id": 2
     }
   ],
   "faultReport": [
@@ -64,6 +84,28 @@ export const mockData = {
       "severity": "severity 3",
       "report_channel": "report channel 3",
       "status": "WAIT_DISPATCH"
+    },
+    {
+      "id": 4,
+      "reporter_name": "reporter name 4",
+      "phone": "13800000004",
+      "asset_id": 5,
+      "fault_type": "OUTAGE",
+      "address_desc": "address desc 4",
+      "severity": "severity 4",
+      "report_channel": "report channel 4",
+      "status": "RESTORED"
+    },
+    {
+      "id": 5,
+      "reporter_name": "reporter name 5",
+      "phone": "13800000005",
+      "asset_id": 3,
+      "fault_type": "VOLTAGE_LOW",
+      "address_desc": "address desc 5",
+      "severity": "severity 5",
+      "report_channel": "report channel 5",
+      "status": "WAIT_DISPATCH"
     }
   ],
   "repairTicket": [
@@ -96,6 +138,16 @@ export const mockData = {
       "status": "WAIT_DISPATCH",
       "assigned_at": "2026-06-13T09:00:00Z",
       "restored_at": "2026-06-13T09:00:00Z"
+    },
+    {
+      "id": 4,
+      "fault_report_id": 4,
+      "team_id": 1,
+      "dispatcher_id": 1,
+      "priority": "priority 4",
+      "status": "RESTORED",
+      "assigned_at": "2026-06-14T09:00:00Z",
+      "restored_at": "2026-06-14T15:30:00Z"
     }
   ],
   "crew": [

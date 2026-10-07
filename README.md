@@ -45,6 +45,16 @@ backend/src/routes, controllers, services, models, repositories, middlewares, co
 - `DB_PORT`: 数据库宿主机端口
 - `DB_USER/DB_PASSWORD/DB_NAME`: 本地数据库凭据
 
+## 资产健康状态判定口径
+
+健康状态跟着故障走，不再只展示建档时填写的静态值。判定口径采用**以该资产未复电的故障为准**（而非最近一次故障）：复电确认本就是工单流转动作，全复电后状态自动回落、无需人工回台账改状态。
+
+1. **未复电**：报修没有关联工单，或关联工单状态不在 `RESTORED` / `CLOSED`。
+2. 有未复电故障时，取所有未复电故障中**最重**的故障类型定级：`VOLTAGE_LOW→WATCH`、`OUTAGE→DEGRADED`、`TRIP→DEGRADED`、`EQUIPMENT_DAMAGE→DANGEROUS`、`SAFETY_RISK→DANGEROUS`（跳闸、设备损坏比低电压重）；未登记的故障类型兜底按 `WATCH`。
+3. 故障全部复电后自动回 `NORMAL`。
+4. 从未登过故障的资产仍显示建档时的 `health_status`。
+5. 资产台账、抢修态势的资产健康统计、工单详情三处同口径：前端 `hooks/useAssetHealth.ts` + `constants/AssetHealthRules.ts`，后端 `services/AssetHealthService.ts` + `constants/AssetHealthRules.ts`（`/api/grid-asset` 直接返回推导后的状态）。
+
 ## Docker 部署说明
 
 - 根 Compose 文件不写 `version`，顶层 `name: grid-repair`。
@@ -54,9 +64,9 @@ backend/src/routes, controllers, services, models, repositories, middlewares, co
 
 ## 枚举/常量出现位置清单
 
-- FaultType: constants/FaultType、types/FaultType、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
-- TicketStatus: constants/TicketStatus、types/TicketStatus、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
-- AssetHealthStatus: constants/AssetHealthStatus、types/AssetHealthStatus、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
+- FaultType: constants/FaultType、types/FaultType、constants/AssetHealthRules（故障权重映射）、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
+- TicketStatus: constants/TicketStatus、types/TicketStatus、constants/AssetHealthRules（复电状态集合）、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
+- AssetHealthStatus: constants/AssetHealthStatus、types/AssetHealthStatus、constants/AssetHealthRules、hooks/useAssetHealth、services/AssetHealthService、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
 
 ## 为什么会牵一发动全身
 
