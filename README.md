@@ -45,6 +45,20 @@ backend/src/routes, controllers, services, models, repositories, middlewares, co
 - `DB_PORT`: 数据库宿主机端口
 - `DB_USER/DB_PASSWORD/DB_NAME`: 本地数据库凭据
 
+## 资产健康状态判定口径
+
+健康状态不再停留在建档值，而是跟着故障走，**以该资产尚未复电的故障为准**：
+
+- 报修关联的抢修工单没有任何一张进入 `RESTORED` / `CLOSED`（含尚未派工的报修），即视为**未复电故障**。
+- 故障类型分轻重映射健康等级：`EQUIPMENT_DAMAGE`、`SAFETY_RISK` → `DANGEROUS`；`TRIP`、`OUTAGE` → `DEGRADED`；`VOLTAGE_LOW` → `WATCH`（跳闸、设备损坏比低电压重）。
+- 当前健康 = max（建档状态， 未复电故障映射的最重等级）；`health_source` 为 `FAULT_DRIVEN` 表示被故障拉高，`BASELINE` 表示沿用建档值。
+- 全部故障复电后回到建档状态（建档为 `NORMAL` 即"回正常"）；从未登记过故障的资产始终沿用建档状态。
+
+资产台账（`/assets`）、抢修态势的资产健康统计（`/dashboard`）、工单详情（`/tickets`）三处共用这一套口径：
+
+- 后端实现在 `backend/src/services/AssetHealthService.ts`，映射规则在 `backend/src/constants/AssetHealthRule.ts`；台账接口 `GET /api/grid-asset`、统计接口 `GET /api/grid-asset/health-stats`、工单接口 `GET /api/repair-ticket` 均返回重算后的健康状态。
+- 前端在 `frontend/src/utils/assetHealth.ts` 保留同一口径的镜像实现，仅供接口不可用时的本地 mock 兜底使用；映射规则镜像在 `frontend/src/constants/AssetHealthRule.ts`。
+
 ## Docker 部署说明
 
 - 根 Compose 文件不写 `version`，顶层 `name: grid-repair`。
@@ -57,6 +71,7 @@ backend/src/routes, controllers, services, models, repositories, middlewares, co
 - FaultType: constants/FaultType、types/FaultType、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
 - TicketStatus: constants/TicketStatus、types/TicketStatus、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
 - AssetHealthStatus: constants/AssetHealthStatus、types/AssetHealthStatus、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
+- AssetHealthRule（故障类型→健康等级映射、复电终态、健康来源）: backend/src/constants/AssetHealthRule.ts 与 frontend/src/constants/AssetHealthRule.ts 双份镜像，被 backend/src/services/AssetHealthService.ts、frontend/src/utils/assetHealth.ts、资产台账/抢修态势/工单详情页面共同引用；调整映射或复电终态时前后端两处必须同步。
 
 ## 为什么会牵一发动全身
 
